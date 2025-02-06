@@ -1,112 +1,135 @@
-<script>
+<script setup>
+import { ref } from 'vue';
+import Layout from './layout/index.vue';
+
+const messages = ref([
+  { type: 'user', content: '你好，我想问一个问题' },
+  { type: 'ai', content: '你好！我是AI助手，很高兴为你服务。请问有什么我可以帮助你的？' }
+]);
+
+const inputMessage = ref('');
+
+const sendMessage = () => {
+  if (inputMessage.value.trim()) {
+    messages.value.push({ type: 'user', content: inputMessage.value });
+    inputMessage.value = '';
+  }
+};
 </script>
 <template>
-
-  <el-container style="height: 100vh;">
-
-    <el-header>
-      <el-row>
-        <el-col :span="24">
-          <div class="logo">  
-            Logo
-          </div>
-        </el-col>
-      </el-row>
-    </el-header>
-
-    <el-container>
-    
-      <el-aside width="200px">
-      
-        <el-menu
-          style="height: 100%; background-color: #f5f5f5; overflow-y: auto;" 
-          class="sidebar-menu"
-        >
-        
-          <el-menu-item index="1">聊天记录1</el-menu-item>
-        
-          <el-menu-item index="2">聊天记录2</el-menu-item>
-        
-        </el-menu>
-      
-      </el-aside>
-      
-      <el-main>
-      
-        <div class="chat-main" style="display: flex; flex-direction: column;">
-        
-          <div 
-            class="chat-history"
-            style="flex: 1; overflow-y: auto;"  
-          >
-          
-            <div class="message">
-              消息1
+  <Layout>
+    <div class="chat-container">
+          <div class="chat-messages" ref="messageContainer">
+            <div v-for="(msg, index) in messages" 
+                 :key="index" 
+                 :class="['message', msg.type]">
+              <div class="message-content">
+                {{ msg.content }}
+              </div>
             </div>
-          
-            <div class="message">
-              消息2  
-            </div>
-            
           </div>
           
-          <div class="chat-footer">
-          
+          <div class="chat-input-container">
             <el-input
+              v-model="inputMessage"
               type="textarea"
-              autosize
-              placeholder="请输入内容"
-              class="chat-input"
+              :rows="3"
+              placeholder="输入消息..."
+              resize="none"
+              @keyup.enter.exact.prevent="sendMessage"
             />
-            
             <el-button
               type="primary"
-              class="send-button"  
+              :disabled="!inputMessage.trim()"
+              @click="sendMessage"
             >
               发送
             </el-button>
-            
           </div>
-          
         </div>
-        
-      </el-main>
-
-    </el-container>
-
-  </el-container>
-
+  </Layout>
 </template>
 
-<style>
+<style scoped>
+.chat-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-  .sidebar-menu {
-    height: 100%;
-    overflow-y: auto;
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  background-color: #f5f7f9;
+  margin-bottom: 0;
+}
+
+.message {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message.user {
+  align-items: flex-end;
+}
+
+.message.ai {
+  align-items: flex-start;
+}
+
+.message-content {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.user .message-content {
+  background-color: #409EFF;
+  color: white;
+  border-radius: 12px 12px 0 12px;
+}
+
+.ai .message-content {
+  background-color: white;
+  color: #333;
+  border-radius: 12px 12px 12px 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chat-input-container {
+  padding: 20px;
+  background-color: white;
+  border-top: 1px solid #e6e6e6;
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input-container .el-input {
+  flex: 1;
+}
+
+.chat-input-container .el-button {
+  align-self: flex-end;
+}
+
+@media (max-width: 768px) {
+  .el-aside {
+    width: 60px !important;
   }
-
-  .chat-main {
-    height: 100%;
+  
+  .el-menu-item span {
+    display: none;
   }
-
-  .chat-history {
-    overflow-y: auto;
+  
+  .message-content {
+    max-width: 90%;
   }
-
-  .chat-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-  }
-
-  .chat-input {
-    width: calc(100% - 100px);
-    display: inline-block;
-  }
-
-  .send-button {
-    display: inline-block;
-    width: 100px;
-  }
-
+}
 </style>
